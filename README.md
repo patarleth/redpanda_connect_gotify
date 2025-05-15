@@ -6,13 +6,15 @@ I've found it to be easier, faster to dev/test with better tooling.
 
 ## this app
 
-    docker-compose.yml kafka connect application 
+    kafka connect application 
 
     Consumes JSON strings (OR arrays) produced to the configured kafka topic in /connect.yaml
 
     The strings are transformed into gotify messages and  POST'd to the gotify server url in docker-compose.yml
 
     The gotify server on POST, sends an alert to members of application configured for the token, and message finally makes it to my phone.
+
+[docker-compose.yml](docker-compose.yml) 
 
 ### SAMPLE .env docker-compose file var that need to be set
 
@@ -23,7 +25,7 @@ The token is associated with a gotify 'app' which allows you to segment your mes
 
 ### SAMPLE gotify POST using curl
 
-[sample_msg.json](sample_msg.json)
+[sample_gotify_msg.json](sample_gotify_msg.json)
 
     curl -s -S \
      --header 'Content-Type: application/json' \
@@ -33,7 +35,7 @@ The token is associated with a gotify 'app' which allows you to segment your mes
 
 ## modifying redpanda connect pipeline logic
 
-To dev/test the pipeline logic in connect.yaml and the *-resource.yaml files
+To dev/test the pipeline logic in [connect.yaml](connect.yaml) and the *-resource.yaml files
 
 I suggest using the redpanda playground app
 
@@ -48,11 +50,9 @@ I suggest isolating your pipeline logic into multiple **-resources.yaml** files 
 
 This app has three files
 
-```
-/connect.yaml
-/mapping-resources.yaml
-/gotify-resources.yaml
-```
+/[connect.yaml](connect.yaml)
+/[mapping-resources.yaml](mapping-resources.yaml)
+/[gotify-resources.yaml](gotify-resources.yaml)
 
 Finally, any **-resources.yaml** files added need to be configured in docker-compose.yml command:
 
