@@ -118,4 +118,6 @@ AND an array such as -
 [ "one", "two" ]
 ```
 
-Would stay as array. Very handy for making single strings into length checks.
+Would be returned as the original array. 
+
+Perty handy for considering / producing single JS strings to the topic, then using length checks in the bloblang.
