@@ -1,0 +1,8 @@
+processor_resources:
+  - label: gotify_post
+    http:
+      url: "${GOTIFY_URL}"
+      verb: POST
+      headers:
+        X-Gotify-Key: ${GOTIFY_KEY}
+        Content-Type: application/json

@@ -2,11 +2,14 @@ services:
   connect:
     image: docker.redpanda.com/redpandadata/connect:latest
     container_name: connect
+    command: -r /mapping-resources.yaml -r /gotify-resources.yaml
     ports:
       - "8083:8083"
     volumes:
       - ./components:/usr/share/spicynoodle-components
       - ./connect.yaml:/connect.yaml
+      - ./mapping-resources.yaml:/mapping-resources.yaml
+      - ./gotify-resources.yaml:/gotify-resources.yaml
     environment:
       - GOTIFY_KEY=${GOTIFY_KEY}
       - GOTIFY_URL=${GOTIFY_URL}

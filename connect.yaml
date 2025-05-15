@@ -13,18 +13,9 @@ input:
 
 pipeline:
   processors:
-    - mapping: |
-        if this.array().length() > 0 { root.message = this.array().index(0) } else { root.message = "default message" }
-        if this.array().length() > 1 { root.title = this.index(1) } else { root.title = "default title" }
-        root.priority = 5
-        root.extras."client::display".contentType = "text/markdown"
+    - resource: gotify_message_mapper
     - try:
-      - http:
-          url: "${GOTIFY_URL}"
-          verb: POST
-          headers:
-            X-Gotify-Key: ${GOTIFY_KEY}
-            Content-Type: application/json
+      - resource: gotify_post
 
 logger:
   format: json

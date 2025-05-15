@@ -1,15 +1,29 @@
 # gotify redpanda connect listener
 
-on JSON msg to configured topic produce gotify alert
+Redpand-connect offers an alternative framework to kafka connect and is based on redpanda tech.
 
-SAMPLE env vars
+I've found it to be easier, faster to dev/test with better tooling.
+
+## this app
+
+    docker-compose.yml kafka connect application 
+
+    Consumes JSON strings (OR arrays) produced to the configured kafka topic in /connect.yaml
+
+    The strings are transformed into gotify messages and  POST'd to the gotify server url in docker-compose.yml
+
+    The gotify server on POST, sends an alert to members of application configured for the token, and message finally makes it to my phone.
+
+### SAMPLE .env docker-compose file var that need to be set
 
     GOTIFY_TOKEN=<xxxxxxxxxxxxxxx>
-    GOTIFY_HOST='gotify.xxxxxxx.ts.net'
     GOTIFY_URL="https://gotify.xxxxxxx.ts.net/message"
 
+The token is associated with a gotify 'app' which allows you to segment your messages a bit.
 
-FINALLY curl the json contained in [sample_msg.json](sample_msg.json)
+### SAMPLE gotify POST using curl
+
+[sample_msg.json](sample_msg.json)
 
     curl -s -S \
      --header 'Content-Type: application/json' \
@@ -17,49 +31,91 @@ FINALLY curl the json contained in [sample_msg.json](sample_msg.json)
      --data "${GOTIFY_JSON}" \
      "${GOTIFY_URL}"
 
-## how to test your pipeline logic in connect.yaml 
+## modifying redpanda connect pipeline logic
 
-Use the playground app
+To dev/test the pipeline logic in connect.yaml and the *-resource.yaml files
+
+I suggest using the redpanda playground app
 
 https://docs.redpanda.com/redpanda-connect/guides/bloblang/playground/
 
-### sample data to get your started
+Just paste sample message data, add the logic to be tested, which eventually would find it's way into a **<name>-resources.yaml** file. 
 
-Input
+And test away.
+
+
+I suggest isolating your pipeline logic into multiple **-resources.yaml** files and mount them at the root of docker container.
+
+This app has three files
+
+```
+/connect.yaml
+/mapping-resources.yaml
+/gotify-resources.yaml
+```
+
+Finally, any **-resources.yaml** files added need to be configured in docker-compose.yml command:
+
+###  pipline data/mappings and how it works at a high level
+
+Check out the docs for the redpanda connect mapping language, called bloblang (yes, naming things is hard)
+
+https://docs.redpanda.com/redpanda-connect/guides/bloblang/about/
+
+And play around with some sample data and scripts using the playground app linked above
+
+Sample Input
 ```
 [ "one" ]
 ```
 
-Mapping
+Sample Mapping
 ```
 if this.array().length() > 0 { root.first = this.array().index(0) }
 if this.array().length() > 1 { root.second = this.index(1) } else { root.second = "default second value" }
 ```
 
-Output
+Expected Output
 ```
 {
   "first": "one"
 }
 ```
 
-### if .array() checks
+#### things to note in the bloblang above
+##### this. and root.
 
-The array function turns the data (could be an object or string, number) into an array.  
-IF the value is an array returns the array as is
-```
-this.array()
-```
+In this, and well any context if I'm being honest -
+
+**this.** refers to **WHATEVER** the caller is.  
+
+When a topline pipeline step is invoked, **this.** would refer to the message and meta in the pipeline.
+
+**root.** will generally refer to the transformed resulting JSON obect
+
+##### this.array() checks
+
+The array() function when applied to a message in the pipeline
+
+    this.array()
+
+allows you to now consinder the the data passed in the body (could be an object or string, number) as an array.
+
+WHEN the value is **already** an array, a reference to the original array is returned
 
 This allows input like:
 ```
 "one"
 ```
 
+becomes 
 ```
 [ "one" ]
 ```
 
+AND an array such as -
 ```
 [ "one", "two" ]
 ```
+
+Would stay as array. Very handy for making single strings into length checks.

@@ -1,0 +1,13 @@
+processor_resources:
+  - label: gotify_message_mapper
+    mapping: |
+      map markdownMapper {
+        root.priority = 5
+        root.extras."client::display".contentType = "text/markdown"
+      }
+      map titleMsgMapper {
+        if this.array().length() > 0 { root.message = this.array().index(0) } else { root.message = "default message" }
+        if this.array().length() > 1 { root.title = this.index(1) } else { root.title = "default title" }
+      }
+      root = this.apply("markdownMapper")
+      root = this.apply("titleMsgMapper")
