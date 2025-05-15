@@ -50,9 +50,9 @@ I suggest isolating your pipeline logic into multiple **-resources.yaml** files 
 
 This app has three files
 
-/[connect.yaml](connect.yaml)
-/[mapping-resources.yaml](mapping-resources.yaml)
-/[gotify-resources.yaml](gotify-resources.yaml)
+* /[connect.yaml](connect.yaml)
+* /[mapping-resources.yaml](mapping-resources.yaml)
+* /[gotify-resources.yaml](gotify-resources.yaml)
 
 Finally, any **-resources.yaml** files added need to be configured in docker-compose.yml command:
 
