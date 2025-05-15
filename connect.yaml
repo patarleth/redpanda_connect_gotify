@@ -1,0 +1,30 @@
+http:
+  enabled: true
+
+
+input:
+  redpanda:
+    seed_brokers:
+      - ${CONNECT_BOOTSTRAP_SERVERS}
+    topics:
+      - ${CONNECT_TOPIC:gotify_json}
+    consumer_group: "gotify"
+    client_id: gotify
+
+pipeline:
+  processors:
+    - mapping: |
+        if this.array().length() > 0 { root.message = this.array().index(0) } else { root.message = "default message" }
+        if this.array().length() > 1 { root.title = this.index(1) } else { root.title = "default title" }
+        root.priority = 5
+        root.extras."client::display".contentType = "text/markdown"
+    - try:
+      - http:
+          url: "${GOTIFY_URL}"
+          verb: POST
+          headers:
+            X-Gotify-Key: ${GOTIFY_KEY}
+            Content-Type: application/json
+
+logger:
+  format: json

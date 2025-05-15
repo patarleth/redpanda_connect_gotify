@@ -1,0 +1,10 @@
+{
+  "extras": {
+    "client::display": {
+      "contentType": "text/markdown"
+    }
+  },
+  "title": "hello from m4",
+  "message": "howdy",
+  "priority": 5
+}
