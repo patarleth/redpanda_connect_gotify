@@ -3,18 +3,29 @@ http:
 
 input:
   redpanda:
+    client_id: gotify
     seed_brokers:
       - ${CONNECT_BOOTSTRAP_SERVERS}
     topics:
       - ${CONNECT_TOPIC:gotify_json}
     consumer_group: "gotify"
+
+output:
+  label: gotify_out
+  redpanda:
     client_id: gotify
+    seed_brokers:
+      - ${CONNECT_BOOTSTRAP_SERVERS}
+    topic: ${CONNECT_OUT_TOPIC:gotify_out_json}
 
 pipeline:
   processors:
     - resource: gotify_message_mapper
     - try:
       - resource: gotify_post
+      - resource: gotify_result_mapper
+    - catch:
+      - resource: gotify_http_fail
 
 logger:
   format: json

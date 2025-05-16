@@ -6,3 +6,12 @@ processor_resources:
       headers:
         X-Gotify-Key: ${GOTIFY_KEY}
         Content-Type: application/json
+  - label: gotify_result_mapper
+    mapping: |
+      root.message = "message sent - " + this.message
+      root.id = this.id
+  - label: gotify_http_fail
+    mapping: |
+      root = this
+      root.custom_error = "failed to post to gotify"
+    
